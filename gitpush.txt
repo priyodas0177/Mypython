@@ -1,0 +1,7 @@
+1. git status
+2. git add . (if i select all file)/
+git add filename (individual file)
+3. git commit -m "write anything"
+4. git push
+
+
