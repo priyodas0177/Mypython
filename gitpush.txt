@@ -3,5 +3,5 @@
 git add filename (individual file)
 3. git commit -m "write anything"
 4. git push
-
+5. download files into my folder path-> "git pull origin main"
 
