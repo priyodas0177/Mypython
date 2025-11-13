@@ -5,3 +5,13 @@ git add filename (individual file)
 4. git push
 5. download files into my folder path-> "git pull origin main"
 
+Enviroment active for windows:
+env\Scripts\activate
+
+Enviroment Deactive
+deactivate
+
+Enviroment active for MAC:
+source env/bin/activate
+
+
