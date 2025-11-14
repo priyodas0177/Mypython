@@ -13,4 +13,7 @@ deactivate
 Enviroment active for MAC:
 source env/bin/activate
 
+if i install any package then update the requirements files: 
+pip freeze > requirements.txt 
+
 
