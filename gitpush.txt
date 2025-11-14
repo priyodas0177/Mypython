@@ -1,8 +1,7 @@
 1. git status
-2. git add . (if i select all file)/
-git add filename (individual file)
+2. git add . (if i select all file) / git add filename (individual file)
 3. git commit -m "write anything"
-4. git push
+4. git push origin branch name "main"
 5. download files into my folder path-> "git pull origin main"
 
 Enviroment active for windows:
