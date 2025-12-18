@@ -1,3 +1,8 @@
+git config --global user.name "Priyo Das"
+git config --global user.email "your-email@gmail.com"
+cd C:\Users\Priyo\Desktop
+git clone https://github.com/priyodas0177/Mypython.git
+
 1. git status
 2. git add . (if i select all file) / git add filename (individual file)
 3. git commit -m "write anything"
