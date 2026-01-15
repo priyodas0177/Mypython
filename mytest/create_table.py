@@ -11,3 +11,16 @@ cursor.execute("""
     is_active BOOLEAN DEFAULT TRUE)""")
 
 print("table created successfully")
+
+
+
+
+cursor.execute("""
+    CREATE TABLE admin ( 
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(50) unique, 
+    password VARCHAR(20), 
+    role VARCHAR(20),
+    is_active BOOLEAN DEFAULT TRUE)""")
+
+print("table created successfully")
