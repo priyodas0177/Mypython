@@ -21,12 +21,10 @@ def admin_Login():
     if result:
         admin_id=result[0]
         admin_name=result[1]
-        print(f"\n Welcome Admin:")
         print(f"\n Welcome Admin: {admin_name}")
         admin_func(admin_id,admin_name)
         
     else:
-        print(f"\n Welcome Admin: ")
         print("Invalid User")
         return None
 admin_Login()
