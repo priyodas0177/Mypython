@@ -5,7 +5,7 @@ def get_connection():
         host="localhost",
         user="root",
         password="@H.dpriyo0177@.",
-        database="testdb"
+        database="test_db"
     )
 print("Databse Connected. ")
 
