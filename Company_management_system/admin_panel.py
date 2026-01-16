@@ -22,9 +22,9 @@ def admin_func(admin_id, admin_name):
             update_user()
         elif choice=="5":
             user_status_menu()
-        elif choice=="6":
-            print("Loggin out...")
-            break
+        # elif choice=="6":
+        #     print("Loggin out...")
+        #     break
         else:
             print("Invalid choice. Please try again.")
 
