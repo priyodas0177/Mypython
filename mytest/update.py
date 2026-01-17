@@ -1,5 +1,5 @@
 from database import get_connection
-
+from user import is_user_exist
 def update_user():
     while True:
         print("UPDATE MENU: ")
@@ -85,7 +85,7 @@ def new_fullname(user_id):
     sql="UPDATE users set fullname=%s WHERE id=%s"
     curser.execute(sql,(name,user_id))
     conn.commit()
-    print("...New Fullname Update Successfully... ")
+    print("...New Fullname Update Successfully... \n")
 
     curser.close()
     conn.close()
@@ -103,7 +103,7 @@ def new_username(user_id):
             sql="UPDATE users set username=%s WHERE id=%s"
             curser.execute(sql,(name,user_id))
             conn.commit()
-            print("...Username Update Successfully... ")
+            print("...Username Update Successfully... \n")
 
             curser.close()
             conn.close()
@@ -117,7 +117,7 @@ def new_password(user_id):
     sql="UPDATE users set password=%s where id=%s"
     curser.execute(sql,(password,user_id))
     conn.commit()
-    print("...Password Update Successfully... ")
+    print("...Password Update Successfully... \n")
 
     curser.close()
     conn.close()
