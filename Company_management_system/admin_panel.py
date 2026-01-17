@@ -29,6 +29,7 @@ def admin_func(admin_id, admin_name):
             print("Invalid choice. Please try again.")
 
 
+
 def is_email_exist(var_email):
     conn=get_connection()
     curser=conn.cursor()

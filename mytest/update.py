@@ -1,5 +1,6 @@
 from database import get_connection
 from user import is_user_exist
+#from login_admin import admin_Login
 def update_user():
     while True:
         print("UPDATE MENU: ")
@@ -12,6 +13,8 @@ def update_user():
             admin_update()
         elif choice=="2":
             user_update() 
+        elif choice=="3":
+            return 
         else:
             print("Invalid choice.")
 
@@ -19,7 +22,7 @@ def update_user():
         
 def admin_update():
     admin_id=int(input("Enter admin id to update: "))
-    new_name=input("Enter new name:")
+    #new_name=input("Enter new name:")
 
     conn=get_connection()
     curser=conn.cursor()
@@ -30,7 +33,8 @@ def admin_update():
         curser.close()
         conn.close()
         return
-
+    
+    new_name=input("Enter new name:")
     sql="""UPDATE admin SET name=%s Where id=%s"""
     curser.execute(sql,(new_name, admin_id))
     conn.commit()

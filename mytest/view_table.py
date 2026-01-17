@@ -11,7 +11,7 @@ print("\nUsers Table Data:\n")
 for row in rows:
     print(row)"""
 
-cursor.execute("show tables from test_db")
+cursor.execute("show tables from testdb")
 
 cursor.close()
 conn.close()

@@ -3,6 +3,7 @@ from Status import user_status_menu
 from user import create_user
 from view import view_admin_users,view_users
 from update import update_user
+from delete import delete_user
 
 def admin_func(admin_id, admin_name):
     while True:
@@ -13,7 +14,8 @@ def admin_func(admin_id, admin_name):
         print("3. view Users")
         print("4. Update User")
         print("5. User Status ")
-        print("6. Logout")
+        print("6. Delete User")
+        print("7. Logout")
 
         choice= input("Enter your choice (1-5):")
         if choice== "1":
@@ -27,7 +29,9 @@ def admin_func(admin_id, admin_name):
         elif choice=="5":
             user_status_menu()
         elif choice=="6":
-            print("Loggin out...")
+            delete_user()
+        elif choice=="7":
+            print("Logging out...")
             break
         else:
             print("Invalid choice. Please try again.")
