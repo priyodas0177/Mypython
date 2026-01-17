@@ -21,7 +21,7 @@ cursor.execute("""
     fullname VARCHAR(50),
     username VARCHAR(50) unique, 
     password VARCHAR(20),
-    email varchar(20),
+    email varchar(50),
     phone int (15),
     gender varchar(10),          
     role VARCHAR(20),
