@@ -29,7 +29,7 @@ def admin_func(admin_id, admin_name):
         elif choice=="5":
             user_status_menu()
         elif choice=="6":
-            delete_user()
+            delete_user(admin_id)
         elif choice=="7":
             print("Logging out...")
             break
