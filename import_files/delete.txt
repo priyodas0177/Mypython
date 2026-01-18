@@ -1,0 +1,23 @@
+def delete_user(logged_admin, cursor):
+    print("\n===== ADMIN CONFIRMATION REQUIRED =====")
+    username = input("Admin Username: ")
+    password = input("Admin Password: ")
+
+    query = """
+        SELECT id 
+        FROM admins 
+        WHERE username=%s AND password=%s AND status='active'
+    """
+    cursor.execute(query, (username, password))
+    admin = cursor.fetchone()
+
+    if not admin or admin[0] != logged_admin[0]:
+        print("❌ Authentication failed. Delete cancelled.")
+        return
+
+    user_id = input("Enter User ID to delete: ")
+
+    cursor.execute("DELETE FROM users WHERE id=%s", (user_id,))
+    cursor.connection.commit()
+
+    print("✅ User deleted successfully.")

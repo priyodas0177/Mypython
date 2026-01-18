@@ -4,9 +4,9 @@ def user_status_menu():
     while True:
         print("\nUSER STATUS MENU")
         print("1. Deactivate Admin")
-        print("2. Reactivate Admin")
+        print("2. Activate Admin")
         print("3. Deactivate User")
-        print("4. Reactivate User")
+        print("4. Activate User")
         print("5. Back")
 
         choice = input("Choose any one: ")

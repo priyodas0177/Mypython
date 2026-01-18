@@ -29,7 +29,7 @@ def admin_update():
 
     curser.execute("select id from admin where id=%s",(admin_id,))
     if not curser.fetchone():
-        print("Admin id not found")
+        print("*** Admin id not found *** \n")
         curser.close()
         conn.close()
         return
@@ -38,7 +38,7 @@ def admin_update():
     sql="""UPDATE admin SET name=%s Where id=%s"""
     curser.execute(sql,(new_name, admin_id))
     conn.commit()
-    print("Admin update Successfully.")
+    print("...Admin update Successfully...\n")
 
     curser.close()
     conn.close()
@@ -50,7 +50,7 @@ def user_update():
 
     curser.execute("select id from users where id=%s",(user_id,))
     if not curser.fetchone():
-        print("User not found. give a valid user id. ")
+        print("*** User not found. give a valid user id *** ")
         curser.close()
         conn.close()
         return
@@ -99,7 +99,7 @@ def new_username(user_id):
         name=input("Enter new full name: ")
 
         if is_user_exist(name):
-            print("Username already exists. Please choose a different username.")
+            print("*** Username already exists. Please choose a different username***")
         else:
             conn=get_connection()
             curser=conn.cursor()
@@ -131,7 +131,7 @@ def new_email(user_id):
         email=input("Enter new Email: ")
 
         if is_user_exist(email):
-            print("Username already exists. Please choose a different username.")
+            print("*** Username already exists. Please choose a different username ***")
         else:
             conn=get_connection()
             curser=conn.cursor()
@@ -173,7 +173,7 @@ def new_role(user_id):
             elif choice==3:
                 role= "Manager"
             else:
-                print("Invalid choice. please try again.")
+                print("*** Invalid choice. please try again ***")
                 continue
     
             conn=get_connection()
