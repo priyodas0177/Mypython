@@ -25,7 +25,7 @@ one click push for mac :
 ./gitpush.sh "Update project files"
 
 one click push for windows :
-.\windows_gitpush.bat " latest files"
+.\win_gitpush.bat " latest files"
 
 
 
