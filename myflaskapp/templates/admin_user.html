@@ -1,0 +1,183 @@
+<style>
+    /* Sidebar base */
+    body{
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            margin: 0;
+            padding: 0;
+        }
+
+        .header{
+            background: #2c3e50;
+            color: white;
+            padding: 30px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h2{
+        margin: 0;
+        font-size: 22px;
+        font-weight: 600;
+        }
+
+        .header a {
+        color: #fff;
+        text-decoration: none;
+        font-size: 15px;
+
+        }
+        .header .Learning{
+            position:absolute;
+            
+        }
+        
+    .sidebar{
+    width: 200px;
+    height: 100vh;
+    background: #11161d;
+    color: #e8eef7;
+    padding: 14px 10px;
+    font-family: Arial, sans-serif;
+    }
+
+    /* Divider lines */
+    .divider{
+    height: 1px;
+    background: rgba(255,255,255,0.12);
+    margin: 10px 6px;
+    }
+
+    /* Collapsible groups */
+    .group{
+    margin: 2px 0;
+    }
+
+    /* Remove default marker triangle */
+    .group > summary{
+    list-style: none;
+    }
+    .group > summary::-webkit-details-marker{
+    display:none;
+    }
+
+    .group-title{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    cursor:pointer;
+    font-weight: 700;
+    color: #f3f6fb;
+    }
+
+    /* Hover on title */
+    .group-title:hover{
+    background: rgba(255,255,255,0.06);
+    }
+
+    /* Chevron (arrow) */
+    .chev{
+    width: 10px;
+    height: 10px;
+    border-right: 2px solid rgba(255,255,255,0.65);
+    border-bottom: 2px solid rgba(255,255,255,0.65);
+    transform: rotate(-45deg); /* closed arrow look */
+    transition: transform .18s ease;
+    }
+
+    /* Rotate arrow when opened */
+    .group[open] .chev{
+    transform: rotate(45deg);
+    }
+
+    /* Sub menu */
+    .sub{
+    display:flex;
+    flex-direction:column;
+    padding: 2px 0 10px 34px; /* indentation like your screenshot */
+    }
+
+    .sub-link{
+    color:#cbd6e3;
+    text-decoration:none;
+    font-size:14px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    }
+
+    .sub-link:hover{
+    background: rgba(255,255,255,0.06);
+    color:#ffffff;
+    }
+
+    /* Active item */
+    .sub-link.active{
+    color:#ffffff;
+    }
+
+    .lea{
+        display:flex;
+        align-items:center;
+
+    }
+    
+       
+    
+</style>
+<body>
+     <!-- � Top bar: LOGOUT only -->
+    <div class="header">
+        <h2>Welcome {{ admin_name }}</h2>
+        <h2>Learning Code</h2>
+        <a href="{{ url_for('logout') }}">Logout</a>
+    </div>
+    
+       
+    
+</body>
+
+ 
+
+<aside class="sidebar">
+  <div class="divider"></div>
+
+  <!-- Personal (opened) -->
+  <details class="group" open>
+    <summary class="group-title">
+      <span class="chev" aria-hidden="true"></span>
+      <span>Personal </span>
+    </summary>
+
+    <nav class="sub">
+      <a class="sub-link active" href="#">Personal Information</a>
+      <a class="sub-link active" href="#">Daily Attendance</a>
+      <a class="sub-link active" href="#">Food</a>
+      <a class="sub-link active" href="#">Salary Statment</a>
+      <a class="sub-link active" href="#">Leave Application</a>
+      <a class="sub-link active" href="#">Movement</a>
+      <a class="sub-link active" href="#">Store Requation</a>
+      
+    </nav>
+  </details>
+
+  <!-- User -->
+  <details class="group">
+    <summary class="group-title">
+      <span class="chev" aria-hidden="true"></span>
+      <span>User Details </span>
+    </summary>
+    <nav class="sub">
+      <a class="sub-link" href="#">Create user</a>
+      <a class="sub-link" href="#">View user</a>
+      <a class="sub-link" href="#">Update user</a>
+      <a class="sub-link" href="#">User Status</a>
+      <a class="sub-link" href="#">Forget Password</a>
+      <a class="sub-link" href="#">Delete user</a>
+    </nav>
+  </details>
+
+  
+</aside>
+
