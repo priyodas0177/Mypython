@@ -1,6 +1,9 @@
 from database import get_connection
 from datetime import timedelta
 from flask import Flask, render_template, request, redirect, url_for, session
+from permission import has_permission, role_requered
+
+
 
 app = Flask(__name__)
 app.secret_key = "abcd"
@@ -8,9 +11,9 @@ app.permanent_session_lifetime = timedelta(minutes=15)
 
 
 # ------------------ Home ------------------
-# @app.route("/")
-# def home():
-#     return redirect(url_for("login_page"))
+@app.route("/")
+def home():
+    return redirect(url_for("login_page"))
 
 
 
@@ -30,6 +33,7 @@ def login_page():
         conn = get_connection()
         cursor = conn.cursor()
 
+#----------- Try admin ----------#
         cursor.execute("""
             SELECT id, name FROM admin
             WHERE name=%s AND password=%s AND is_active=1
@@ -49,52 +53,53 @@ def login_page():
             session["admin_id"] = admin_id
             session["admin_name"] = admin_name
 
-            return redirect(url_for("admin_dashboard"))
+            return redirect(url_for("dashboard"))
+        
+#----------- Try Users ----------#
+        conn=get_connection()
+        cursor=conn.cursor()
+
+        cursor.execute("""
+            SELECT id, username, role from users Where username=%s AND 
+                password=%s AND  is_active=1
+        """, (username, password))
+        result_user=cursor.fetchone()
+        cursor.close()
+        conn.close()
+
+        if result_user:
+            user_id, user_name, role=result_user
+
+            session.clear()
+            session.permanent=True
+            session["user_type"]="user"
+            session["user_id"]=user_id
+            session["user_name"]=user_name
+            session["role"]=role
+            return redirect(url_for("dashboard"))
 
         return render_template("login.html", message="Invalid username or password")
 
     return render_template("login.html", message=message)
 
 
-# ------------------ Helper: Admin Check ------------------
-def admin_required():
-    return session.get("user_type") == "admin"
-
-
-# ------------------ Admin Dashboard ------------------
-@app.route("/admin/Dashboard")
-def admin_dashboard():
-    if not admin_required():
+# -------------- Admin Dashboard ------------------
+@app.route("/dashboard")
+def dashboard():
+    if not session.get("user_type"):
         return redirect(url_for("login_page", expired=1))
 
     return render_template(
-        "admin_user.html",
-        admin_name=session.get("admin_name")
+        "Dashboard.html",
+        admin_name=session.get("admin_name"),
+        user_name=session.get("user_name")
     )
 
 
-# @app.route("/admin/dashboard")
-# def admin_dashboard():
-#     if not admin_required():
-#         return redirect(url_for("login_page", expired=1))
 
-#     return render_template(
-#         "admin_dashboard.html",
-#         admin_name=session.get("admin_name"),
-#         admin_id=session.get("admin_id"),
-#     )
-
-
-# ------------------ Admin User Menu ------------------
-# @app.route("/admin/usersmenu")
-# def admin_users_page():
-#     if not admin_required():
-#         return redirect(url_for("login_page", expired=1))
-
-#     return render_template(
-#         "admin_user.html",
-#         admin_name=session.get("admin_name")
-#     )
+@app.context_processor
+def inject_permission():
+    return dict(has_permission=has_permission)
 
 
 # ------------------ Logout ------------------

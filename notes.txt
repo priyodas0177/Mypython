@@ -1,59 +1,43 @@
-<div class="box"><a href="/admin/users">View Users</a></div>
-  <div class="box"><a href="/admin/users/update">Update User</a></div>
-  <div class="box"><a href="/admin/users/status">User Status</a></div>
-  <div class="box"><a href="/admin/users/delete">Delete User</a></div>
-  <div class="box"><a href="/logout">Logout</a></div>
+@app.route("/admin/users")
+def admin_users_page():
+    if not has_permission("USER_DETAILS"):
+        return redirect(url_for("login_page", expired=1))
+
+    return render_template("admin_user.html")
 
 
 
 
-  >>>>>>>
-  .header {
-            background: #2c3e50;
-            color: white;
-            padding: 15px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+@app.route("/personal/info")
+def personal_info():
+    if not has_permission("PERSONAL"):
+        return redirect(url_for("login_page", expired=1))
 
-        .header a {
-            color: #fff;
-            text-decoration: none;
-            font-size: 14px;
-        }
+    return render_template("personal_info.html")
 
-        .container {
-            padding: 30px;
-        }
 
-        .grid {
-            display: flex;
-            gap: 20px;
-            margin-top: 20px;
-        }
+    # @app.route("/admin/dashboard")
 
-        .card {
-            background: white;
-            width: 220px;
-            padding: 25px;
-            border-radius: 8px;
-            text-decoration: none;
-            color: #333;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            transition: transform 0.2s;
-        }
 
-        .card:hover {
-            transform: translateY(-5px);
-        }
 
-        .card h3 {
-            margin-top: 0;
-            color: #2c3e50;
-        }
+    
+# def admin_dashboard():
+#     if not role_requered("admin"):
+#         return redirect(url_for("login_page", expired=1))
 
-        .card p {
-            font-size: 14px;
-            color: #666;
-        }
+#     return render_template(
+#         "admin_dashboardd.html",
+#         admin_name=session.get("admin_name")
+#     )
+
+# # -------------- User Dashboard ------------------
+# @app.route("/user/dashboard")
+# def user_dashboardd():
+#     if not role_requered("user"):
+#         return redirect(url_for("login_page",expired=1))
+    
+#     return render_template(
+#         "admin_dashboardd.html",
+#         user_name=session.get("user_name")
+#     )
+
