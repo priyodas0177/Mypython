@@ -41,3 +41,53 @@ def personal_info():
 #         user_name=session.get("user_name")
 #     )
 
+
+
+
+@app.route("/admin/save-permissions/<int:user_id>", methods=["POST"])
+def save_permissions(user_id):
+    if session.get("user_type") != "admin":
+        return redirect(url_for("login_page", expired=1))
+
+    selected = set(request.form.getlist("features"))
+
+    CHILDREN = {
+        "CREATE_USER",
+        "VIEW_USER",
+        "UPDATE_USER",
+        "USER_STATUS",
+        "FORGET_PASSWORD",
+        "DELETE_USER"
+    }
+
+    # Auto-add parent if any child selected
+    if selected & CHILDREN:
+        selected.add("USER_DETAILS")
+
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    # Remove old permissions (simple for learning)
+    cursor.execute("DELETE FROM user_permissions WHERE user_id=%s", (user_id,))
+
+    # Insert new permissions
+    for feature in selected:
+        cursor.execute("""
+            INSERT INTO user_permissions (user_id, feature_code, is_allowed)
+            VALUES (%s, %s, 1)
+        """, (user_id, feature))
+
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+    return redirect(url_for("search_user"))
+
+
+.page-content{
+    width: 100%;
+    display: flex;
+    justify-content: center;   /* center horizontally */
+    align-items: flex-start;   /* top, not vertical center */
+    padding-top: 30px;         /* space from top */
+    }

@@ -161,31 +161,64 @@
 
 
   <!-- User Details -->
+  
+
+{% set show_user_details =
+    has_permission("create_user")
+    or has_permission("view_users")
+    or has_permission("update_user")
+    or has_permission("user_status")
+    or has_permission("forget_password")
+    or has_permission("delete_user")
+%}
+
+{% if show_user_details %}
+<details class="group">
+  <summary class="group-title">
+    <span class="chev" aria-hidden="true"></span>
+    <span>User Details</span>
+  </summary>
+
+  <nav class="sub">
+    {% if has_permission("create_user") %}
+      <a class="sub-link" href="#">Create user</a>
+    {% endif %}
+
+    {% if has_permission("view_users") %}
+      <a class="sub-link" href="#">View user</a>
+    {% endif %}
+
+    {% if has_permission("update_user") %}
+      <a class="sub-link" href="#">Update user</a>
+    {% endif %}
+
+    {% if has_permission("user_status") %}
+      <a class="sub-link" href="#">User Status</a>
+    {% endif %}
+
+    {% if has_permission("forget_password") %}
+      <a class="sub-link" href="#">Forget Password</a>
+    {% endif %}
+
+    {% if has_permission("delete_user") %}
+      <a class="sub-link" href="#">Delete user</a>
+    {% endif %}
+  </nav>
+</details>
+{% endif %}
+
+
+
   {% if has_permission("USER_DETAILS") %}
   <details class="group">
     <summary class="group-title">
       <span class="chev" aria-hidden="true"></span>
-      <span>User Details </span>
+      <span>Permission </span>
     </summary>
     <nav class="sub">
       {% if has_permission("CREATE_USER")%}
-      <a class="sub-link" href="#">Create user</a>
+      <a class="sub-link" href="{{url_for('search_user')}}">Give Permission</a>
       {% endif %}
-      {% if has_permission("VIEW_USER")%}
-      <a class="sub-link" href="#">View user</a>
-      {% endif %}
-      {% if has_permission("UPDATE_USER")%}
-      <a class="sub-link" href="#">Update user</a>
-       {% endif %}
-      {% if has_permission("USER_STATUS")%}
-      <a class="sub-link" href="#">User Status</a>
-       {% endif %}
-      {% if has_permission("FORGET_PASSWORD")%}
-      <a class="sub-link" href="#">Forget Password</a>
-       {% endif %}
-      {% if has_permission("DELETE_USER")%}
-      <a class="sub-link" href="#">Delete user</a>
-       {% endif %}
     </nav>
   </details>
   {% endif %}

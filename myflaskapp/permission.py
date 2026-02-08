@@ -1,5 +1,6 @@
-from flask import session, redirect, url_for
+from flask import session, redirect, url_for,request,render_template
 from database import get_connection
+
 
 # ------------- Helper: Check Admin/User ------------------
 def role_requered(role):
@@ -27,3 +28,7 @@ def has_permission(feature_code):
         return False
 
     return result[0] == 1
+
+#------------- Search User -------------
+
+

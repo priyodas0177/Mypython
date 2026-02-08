@@ -1,0 +1,133 @@
+<style>
+    /* Sidebar base */
+    body{
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            margin: 0;
+            padding: 0;
+        }
+
+        .header{
+            background: #2c3e50;
+            color: white;
+            padding: 30px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h2{
+        margin: 0;
+        font-size: 22px;
+        font-weight: 600;
+        }
+
+        .header a {
+        color: #fff;
+        text-decoration: none;
+        font-size: 15px;
+
+        }
+        .header .Learning{
+            position:absolute;
+            
+        }
+        
+    .sidebar{
+    width: 200px;
+    height: 100vh;
+    background: #11161d;
+    color: #e8eef7;
+    padding: 14px 10px;
+    font-family: Arial, sans-serif;
+    }
+    .page-content{
+    width: 100%;
+    display: flex;
+    justify-content: center;   /* center horizontally */
+    align-items: flex-start;   /* top, not vertical center */
+    padding-top: 30px;         /* space from top */
+    }
+
+    .mdt{
+    width: 100%;
+    max-width: 700px;
+    background: #ffffff;
+    padding: 22px;
+    border-radius: 12px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+    }
+    .mdt input[type="number"]{
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    }
+
+    .mdt button{
+    padding: 10px 16px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    background: #2c3e50;
+    color: white;
+    font-weight: 600;
+    }
+
+    .perm-item{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 6px 0;
+    }
+
+    .save-btn{
+    margin-top: 14px;
+    background: #27ae60;
+    }
+    
+</style>
+
+<body>
+     <!-- � Top bar: LOGOUT only -->
+    <div class="header">
+        <h2>Welcome {{ admin_name }}</h2>
+        <h2>Learning Code</h2>
+        <a href="{{ url_for('logout') }}">Logout</a>
+    </div>
+</body>
+
+<div class="page-content">
+    <div class="mdt">
+        
+        <h3>Search User</h3>
+
+        <form method="POST">
+        <input type="number" name="user_id" placeholder="Enter User ID" required>
+        <button type="submit">Search</button>
+        </form>
+
+        {% if error %}
+        <p style="color:red">{{ error }}</p>
+        {% endif %}
+
+        {% if user %}
+        <hr>
+        <p><b>User:</b> {{ user[1] }} ({{ user[2] }})</p>
+
+        <form method="POST" action="{{ url_for('save_permissions', user_id=user[0]) }}">
+            {% for f in features %}
+            <label style="display:block; margin:6px 0;">
+                <input type="checkbox"
+                    name="feature_codes"
+                    value="{{ f[0] }}"
+                    {% if allowed_map.get(f[0], 0) == 1 %}checked{% endif %}>
+                {{ f[1] }}
+            </label>
+            {% endfor %}
+
+            <button type="submit">Save Permissions</button>
+        </form>
+        {% endif %}
+    </div>
+</div>

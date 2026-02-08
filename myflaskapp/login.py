@@ -96,10 +96,105 @@ def dashboard():
     )
 
 
-
 @app.context_processor
 def inject_permission():
     return dict(has_permission=has_permission)
+
+#------------- Search User -------------
+@app.route("/admin/search-user", methods=["GET", "POST"])
+def search_user():
+    if session.get("user_type") != "admin":
+        return redirect(url_for("login_page", expired=1))
+
+    user = None
+    error = None
+    features = []
+    allowed_map = {}
+
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    # � Load all features (ALWAYS)
+    cursor.execute("SELECT feature_code, feature_name FROM features")
+    features = cursor.fetchall()
+
+    if request.method == "POST":
+        user_id = request.form.get("user_id")
+
+        cursor.execute(
+            "SELECT id, username, email FROM users WHERE id=%s",
+            (user_id,)
+        )
+        user = cursor.fetchone()
+
+        if not user:
+            error = "User not found"
+        else:
+            cursor.execute("""
+                SELECT feature_code, is_allowed
+                FROM user_permissions
+                WHERE user_id=%s
+            """, (user[0],))
+
+            allowed_map = {
+                code: is_allowed for code, is_allowed in cursor.fetchall()
+            }
+
+    cursor.close()
+    conn.close()
+
+    return render_template(
+        "search_user.html",
+        user=user,
+        error=error,
+        features=features,
+        allowed_map=allowed_map
+    )
+
+
+#------------- Save Permissions -------------
+@app.route("/admin/save-permissions/<int:user_id>", methods=["POST"])
+def save_permissions(user_id):
+    if session.get("user_type") != "admin":
+        return redirect(url_for("login_page", expired=1))
+
+    selected = request.form.getlist("feature_codes")
+
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    try:
+        # reset permissions
+        cursor.execute(
+            "UPDATE user_permissions SET is_allowed=0 WHERE user_id=%s",
+            (user_id,)
+        )
+
+        for code in selected:
+            cursor.execute("""
+                UPDATE user_permissions
+                SET is_allowed=1
+                WHERE user_id=%s AND feature_code=%s
+            """, (user_id, code))
+
+            if cursor.rowcount == 0:
+                cursor.execute("""
+                    INSERT INTO user_permissions (user_id, feature_code, is_allowed)
+                    VALUES (%s, %s, 1)
+                """, (user_id, code))
+
+        conn.commit()
+
+    except:
+        conn.rollback()
+        raise
+    finally:
+        cursor.close()
+        conn.close()
+
+    return redirect(url_for("search_user"))
+
+
 
 
 # ------------------ Logout ------------------
