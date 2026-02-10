@@ -2,13 +2,12 @@ from database import get_connection
 from datetime import timedelta
 from flask import Flask, render_template, request, redirect, url_for, session
 from permission import has_permission, role_requered
-from all_details_user import init_user_create_routes
+
+
 
 app = Flask(__name__)
 app.secret_key = "abcd"
 app.permanent_session_lifetime = timedelta(minutes=15)
-
-init_user_create_routes(app)
 
 
 # ------------------ Home ------------------
@@ -17,17 +16,18 @@ def home():
     return redirect(url_for("login_page"))
 
 
+
 # ------------------ Login ------------------
 @app.route("/login", methods=["GET", "POST"])
 def login_page():
     message = None
-    
+    session.clear()
+
     # show session expired message
     if request.args.get("expired") == "1":
         message = "Session expired. Please login again."
 
     if request.method == "POST":
-        session.clear()
         username = request.form.get("username", "").strip()
         password = request.form.get("password", "")
 
@@ -85,7 +85,8 @@ def login_page():
 
 #---------------Display name -------------
 def get_dispaly_name():
-    return session.get("admin_name") or session.get("user_name") or "User"
+     return session.get("admin_name") or session.get("user_name") or "User"
+
 
 
 # -------------- Admin Dashboard ------------------
@@ -94,8 +95,9 @@ def dashboard():
     if not session.get("user_type"):
         return redirect(url_for("login_page", expired=1))
     
+    
     return render_template(
-        "dashboard.html",
+        "Dashboard.html",
         display_name=get_dispaly_name()
     )
 
@@ -108,26 +110,28 @@ def inject_permission():
 @app.route("/admin/search-user", methods=["GET", "POST"])
 def search_user():
     if session.get("user_type") != "admin":
-        return redirect(url_for("login_page", expired=1))
+        return redirect(url_for("login_page", expired=1)) #expired=1 to show session expired message
 
     user = None
     error = None
     features = []
     allowed_map = {}
-
+    
+        
     conn = get_connection()
     cursor = conn.cursor()
 
-    cursor.execute("SELECT feature_code, feature_name FROM features")
+    # � Load all features (ALWAYS)
+    cursor.execute("SELECT feature_code, feature_name FROM features") #load all features to display in checkbox list
     features = cursor.fetchall()
 
-    # ✅ user_id from GET or POST
-    user_id = (request.args.get("user_id") or "").strip()
     if request.method == "POST":
-        user_id = (request.form.get("user_id") or "").strip()
+        user_id = request.form.get("user_id").strip() #get user id from input
 
-    if user_id:
-        cursor.execute("SELECT id, username, email FROM users WHERE id=%s", (user_id,))
+        cursor.execute(
+            "SELECT id, username, email FROM users WHERE id=%s",
+            (user_id,)
+        )
         user = cursor.fetchone()
 
         if not user:
@@ -138,11 +142,15 @@ def search_user():
                 FROM user_permissions
                 WHERE user_id=%s
             """, (user[0],))
-            allowed_map = {code: is_allowed for code, is_allowed in cursor.fetchall()}
+
+            allowed_map = {
+                code: is_allowed for code, is_allowed in cursor.fetchall() # convert the db into a dictionary.
+            }
 
     cursor.close()
     conn.close()
-
+    
+    
     return render_template(
         "search_user.html",
         user=user,
@@ -151,7 +159,6 @@ def search_user():
         allowed_map=allowed_map,
         display_name=get_dispaly_name()
     )
-
 
 
 #------------- Save Permissions -------------
@@ -194,7 +201,9 @@ def save_permissions(user_id):
         cursor.close()
         conn.close()
 
-    return redirect(url_for("search_user"))
+    return redirect(url_for("search_user",user_id=user_id))
+
+
 
 
 # ------------------ Logout ------------------

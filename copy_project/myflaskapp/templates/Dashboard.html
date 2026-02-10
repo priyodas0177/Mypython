@@ -126,20 +126,17 @@
        
     
 </style>
+
 <body>
      <!-- � Top bar: LOGOUT only -->
     <div class="header">
-        <h2>Welcome {{ admin_name }}</h2>
+        <h2>Welcome {{ display_name }}</h2>
         <h2>Learning Code</h2>
         <a href="{{ url_for('logout') }}">Logout</a>
     </div>
-    
-       
-    
 </body>
 
  
-
 <aside class="sidebar">
   <div class="divider"></div>
 
@@ -157,27 +154,72 @@
       <a class="sub-link active" href="#">Salary Statment</a>
       <a class="sub-link active" href="#">Leave Application</a>
       <a class="sub-link active" href="#">Movement</a>
-      <a class="sub-link active" href="#">Personal Information</a>
+      <a class="sub-link active" href="#">Store Requation</a>
       
     </nav>
   </details>
 
-  <!-- User -->
+
+  <!-- User Details -->
+{% set show_user_details =
+    has_permission("create_user")
+    or has_permission("view_users")
+    or has_permission("update_user")
+    or has_permission("user_status")
+    or has_permission("forget_password")
+    or has_permission("delete_user")
+%}
+
+{% if show_user_details %}
+<details class="group">
+  <summary class="group-title">
+    <span class="chev" aria-hidden="true"></span>
+    <span>User Details</span>
+  </summary>
+
+  <nav class="sub">
+    {% if has_permission("create_user") %}
+      <a class="sub-link" href="#">Create user</a>
+    {% endif %}
+
+    {% if has_permission("view_users") %}
+      <a class="sub-link" href="#">View user</a>
+    {% endif %}
+
+    {% if has_permission("update_user") %}
+      <a class="sub-link" href="#">Update user</a>
+    {% endif %}
+
+    {% if has_permission("user_status") %}
+      <a class="sub-link" href="#">User Status</a>
+    {% endif %}
+
+    {% if has_permission("forget_password") %}
+      <a class="sub-link" href="#">Forget Password</a>
+    {% endif %}
+
+    {% if has_permission("delete_user") %}
+      <a class="sub-link" href="#">Delete user</a>
+    {% endif %}
+  </nav>
+</details>
+{% endif %}
+
+
+
+   {% if has_permission("USER_DETAILS") %} <!--show Permission menu group -->
   <details class="group">
     <summary class="group-title">
       <span class="chev" aria-hidden="true"></span>
-      <span>User Menu</span>
+      <span>Permission </span>
     </summary>
     <nav class="sub">
-      <a class="sub-link" href="#">Create user</a>
-      <a class="sub-link" href="#">View user</a>
-      <a class="sub-link" href="#">Update user</a>
-      <a class="sub-link" href="#">User Status</a>
-      <a class="sub-link" href="#">Forget Password</a>
-      <a class="sub-link" href="#">Delete user</a>
+      {% if has_permission("CREATE_USER")%}
+      <a class="sub-link" href="{{url_for('search_user')}}">Give Permission</a> <!-- CREATE_USER -> Give permission-->
+      {% endif %}
     </nav>
   </details>
-
+  {% endif %}
   
 </aside>
 

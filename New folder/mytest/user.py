@@ -36,6 +36,8 @@ def get_role():
             print("1. Admin")
             print("2. Employee")
             print("3. Manager")
+            print("4. HR")
+
 
             choice=int(input("Enter your Choice (1-3): "))
             if choice==1:
@@ -44,6 +46,8 @@ def get_role():
                 return "Employee"
             elif choice==3:
                 return "Manager"
+            elif choice==4:
+                return "HR"
             else:
                 print("Invalid choice. please try again.")
 def is_user_exist(var_username):
@@ -93,15 +97,15 @@ def get_unique_email():
 def create_user():
     full_name=input("Enter a full Username: ")
     var_username=get_unique_username()
-    #var_username=input("Enter username: ") #unique 
+    
     password=input("Enter password:")
     var_email=get_unique_email()
-    #email=input("Enter email: ")
+   
     phone=get_phone()
-    #phone=int(input("Enter phone number: ")) #work 11 digit only. 
-    #gender=input("Enter gender: ")
+    
+    
     gender=get_gender()
-    #role=input("Enter role: ")
+    
     role=get_role()
 
     conn=get_connection()

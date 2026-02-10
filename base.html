@@ -166,6 +166,7 @@
         </summary>
         <nav class="sub">
           {% if has_permission("create_user") %}<a class="sub-link" href="{{url_for('create_user')}}">Create user</a>{% endif %}
+          {% if has_permission("view_users") %}<a class="sub-link" href="#">View user</a>{% endif %}
           {% if has_permission("update_user") %}<a class="sub-link" href="#">Update user</a>{% endif %}
           {% if has_permission("user_status") %}<a class="sub-link" href="#">User Status</a>{% endif %}
           {% if has_permission("forget_password") %}<a class="sub-link" href="#">Forget Password</a>{% endif %}

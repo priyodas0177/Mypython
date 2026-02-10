@@ -2,13 +2,12 @@ from database import get_connection
 from datetime import timedelta
 from flask import Flask, render_template, request, redirect, url_for, session
 from permission import has_permission, role_requered
-from all_details_user import init_user_create_routes
+
+
 
 app = Flask(__name__)
 app.secret_key = "abcd"
 app.permanent_session_lifetime = timedelta(minutes=15)
-
-init_user_create_routes(app)
 
 
 # ------------------ Home ------------------
@@ -17,17 +16,18 @@ def home():
     return redirect(url_for("login_page"))
 
 
+
 # ------------------ Login ------------------
 @app.route("/login", methods=["GET", "POST"])
 def login_page():
     message = None
-    
+    session.clear()
+
     # show session expired message
     if request.args.get("expired") == "1":
         message = "Session expired. Please login again."
 
     if request.method == "POST":
-        session.clear()
         username = request.form.get("username", "").strip()
         password = request.form.get("password", "")
 
@@ -85,7 +85,8 @@ def login_page():
 
 #---------------Display name -------------
 def get_dispaly_name():
-    return session.get("admin_name") or session.get("user_name") or "User"
+     return session.get("admin_name") or session.get("user_name") or "User"
+
 
 
 # -------------- Admin Dashboard ------------------
@@ -94,8 +95,9 @@ def dashboard():
     if not session.get("user_type"):
         return redirect(url_for("login_page", expired=1))
     
+    
     return render_template(
-        "dashboard.html",
+        "Dashboard.html",
         display_name=get_dispaly_name()
     )
 
@@ -195,6 +197,8 @@ def save_permissions(user_id):
         conn.close()
 
     return redirect(url_for("search_user"))
+
+
 
 
 # ------------------ Logout ------------------
