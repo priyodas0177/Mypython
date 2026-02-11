@@ -145,7 +145,6 @@
           <a class="sub-link" href="#">Salary Statment</a>
           <a class="sub-link" href="#">Leave Application</a>
           <a class="sub-link" href="#">Movement</a>
-          <a class="sub-link" href="#">Store Requation</a>
         </nav>
       </details>
 
@@ -165,11 +164,25 @@
           <span>User Details</span>
         </summary>
         <nav class="sub">
-          {% if has_permission("create_user") %}<a class="sub-link" href="{{url_for('create_user')}}">Create user</a>{% endif %}
-          {% if has_permission("update_user") %}<a class="sub-link" href="#">Update user</a>{% endif %}
-          {% if has_permission("user_status") %}<a class="sub-link" href="#">User Status</a>{% endif %}
-          {% if has_permission("forget_password") %}<a class="sub-link" href="#">Forget Password</a>{% endif %}
-          {% if has_permission("delete_user") %}<a class="sub-link" href="#">Delete user</a>{% endif %}
+          {% if has_permission("create_user") %}
+            <a class="sub-link" href="{{url_for('create_user')}}">Create user</a>
+          {% endif %}
+
+          {% if has_permission("update_user") %}
+            <a class="sub-link" href="{{ url_for('update_user') }}">Update user</a>
+          {% endif %}
+
+          {% if has_permission("user_status") %}
+            <a class="sub-link" href="#">User Status</a>
+          {% endif %}
+
+          {% if has_permission("forget_password") %}
+            <a class="sub-link" href="#">Forget Password</a>
+          {% endif %}
+
+          {% if has_permission("delete_user") %}
+            <a class="sub-link" href="#">Delete user</a>
+          {% endif %}
         </nav>
       </details>
       {% endif %}

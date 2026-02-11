@@ -1,0 +1,50 @@
+{% extends "dashboard.html" %}
+{% block title %}Update User{% endblock %}
+{% block content %}
+
+<h3>Update User</h3>
+
+<!-- Search form (always visible) -->
+<form method="GET" action="{{ url_for('update_user') }}">
+  <input type="number" name="user_id" placeholder="Enter User ID" required>
+  <button type="submit">Search</button>
+</form>
+
+{% if error %}
+  <p style="color:red;">{{ error }}</p>
+{% endif %}
+{% if success %}
+  <p style="color:green;">{{ success }}</p>
+{% endif %}
+
+{% if result_user %}
+  <hr>
+
+  <!-- Update form -->
+  <form method="POST" action="{{ url_for('update_user') }}">
+    <input type="hidden" name="user_id" value="{{ result_user[0] }}">
+
+    <input type="text" name="fullname" value="{{ result_user[1] }}" placeholder="Full Name">
+    <input type="text" name="username" value="{{ result_user[2] }}" placeholder="Username">
+    <input type="password" name="password" placeholder="New Password (leave empty to keep old)">
+    <input type="email" name="email" value="{{ result_user[4] }}" placeholder="Email">
+    <input type="text" name="phone" value="{{ result_user[5] or '' }}" placeholder="Phone">
+
+    <select name="gender">
+      <option value="Male"   {% if result_user[6] == 'Male' %}selected{% endif %}>Male</option>
+      <option value="Female" {% if result_user[6] == 'Female' %}selected{% endif %}>Female</option>
+      <option value="Others" {% if result_user[6] == 'Others' %}selected{% endif %}>Others</option>
+    </select>
+
+    <select name="role">
+      <option value="Admin"    {% if result_user[7] == 'Admin' %}selected{% endif %}>Admin</option>
+      <option value="Employee" {% if result_user[7] == 'Employee' %}selected{% endif %}>Employee</option>
+      <option value="Manager"  {% if result_user[7] == 'Manager' %}selected{% endif %}>Manager</option>
+      <option value="HR"       {% if result_user[7] == 'HR' %}selected{% endif %}>HR</option>
+    </select>
+
+    <button type="submit">Update</button>
+  </form>
+{% endif %}
+
+{% endblock %}

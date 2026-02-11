@@ -2,14 +2,14 @@ from database import get_connection
 from datetime import timedelta
 from flask import Flask, render_template, request, redirect, url_for, session
 from permission import has_permission, role_requered
-from all_details_user import init_user_create_routes
+from all_details_user import init_user_create_routes, init_user_update_routes
 
 app = Flask(__name__)
 app.secret_key = "abcd"
 app.permanent_session_lifetime = timedelta(minutes=15)
 
 init_user_create_routes(app)
-
+init_user_update_routes(app)
 
 # ------------------ Home ------------------
 @app.route("/")
@@ -118,16 +118,16 @@ def search_user():
     conn = get_connection()
     cursor = conn.cursor()
 
-    cursor.execute("SELECT feature_code, feature_name FROM features")
+    cursor.execute("SELECT feature_code, feature_name FROM features") #show checkbox data.
     features = cursor.fetchall()
 
-    # ✅ user_id from GET or POST
+    # user_id from GET or POST
     user_id = (request.args.get("user_id") or "").strip()
     if request.method == "POST":
         user_id = (request.form.get("user_id") or "").strip()
 
     if user_id:
-        cursor.execute("SELECT id, username, email FROM users WHERE id=%s", (user_id,))
+        cursor.execute("SELECT id, username, email FROM users WHERE id=%s", (user_id,)) #search with user. 
         user = cursor.fetchone()
 
         if not user:
@@ -138,12 +138,12 @@ def search_user():
                 FROM user_permissions
                 WHERE user_id=%s
             """, (user[0],))
-            allowed_map = {code: is_allowed for code, is_allowed in cursor.fetchall()}
+            allowed_map = {code: is_allowed for code, is_allowed in cursor.fetchall()} #if permissson =1 checkbox check, elso uncheck
 
     cursor.close()
     conn.close()
 
-    return render_template(
+    return render_template( #send data to html
         "search_user.html",
         user=user,
         error=error,
