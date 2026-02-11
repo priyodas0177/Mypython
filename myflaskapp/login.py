@@ -37,8 +37,8 @@ def login_page():
 #----------- Try admin ----------#
         cursor.execute("""
             SELECT id, name FROM admin
-            WHERE name=%s AND password=%s AND is_active=1
-        """, (username, password))
+            WHERE (name=%s OR email=%s) AND password=%s AND is_active=1
+        """, (username, username, password))
 
         result_admin = cursor.fetchone()
 
@@ -61,9 +61,9 @@ def login_page():
         cursor=conn.cursor()
 
         cursor.execute("""
-            SELECT id, username, role from users Where username=%s AND 
-                password=%s AND  is_active=1
-        """, (username, password))
+            SELECT id, username, role from users Where (username=%s OR 
+               email=%s) AND password=%s AND  is_active=1
+        """, (username,username,password))
         result_user=cursor.fetchone()
         cursor.close()
         conn.close()
@@ -107,8 +107,8 @@ def inject_permission():
 #------------- Search User -------------
 @app.route("/admin/search-user", methods=["GET", "POST"])
 def search_user():
-    if session.get("user_type") != "admin":
-        return redirect(url_for("login_page", expired=1))
+    # if session.get("user_type") != "admin":
+    #     return redirect(url_for("login_page", expired=1))
 
     user = None
     error = None

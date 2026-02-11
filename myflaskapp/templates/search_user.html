@@ -44,7 +44,7 @@
     <h3>Search User</h3>
 
     <form method="GET" action="{{ url_for('search_user') }}">
-      <input type="box" name="user_id" min="1" required>
+      <input type="box" name="user_id" placeholder="Enter User ID" value="{{request.args.get('user_id', '')}}" required>
       <button type="submit">Search</button>
     </form>
 
