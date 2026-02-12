@@ -3,21 +3,29 @@ from database import get_connection
 from permission import has_permission
 
 
-def is_user_exist(var_username):
+def is_user_exist(username, user_id=None):
     conn=get_connection()
     curser=conn.cursor()
 
-    curser.execute("SELECT id FROM users WHERE username=%s",(var_username,))
+    if user_id:
+        curser.execute("SELECT id FROM users WHERE username=%s and id<>%s",
+                       (username,user_id))
+    else:
+        curser.execute("SELECT id FROM users WHERE username=%s",(username,))
     username_result=curser.fetchone()
     curser.close()
     conn.close()
     return username_result is not None
 
-def is_email_exist(var_email):
+def is_email_exist(email,user_id=None):
     conn=get_connection()
     curser=conn.cursor()
 
-    curser.execute("SELECT id FROM users WHERE email=%s",(var_email,))
+    if user_id:
+        curser.execute("SELECT id FROM users WHERE email=%s and id<>%s",
+                       (email,user_id))
+    else:
+        curser.execute("SELECT id FROM users WHERE email=%s",(email,))
     email_result=curser.fetchone()
     curser.close()
     conn.close()
@@ -28,6 +36,8 @@ def get_dispaly_name():
 def init_user_create_routes(app):
     @app.route("/admin/create_user",methods=["GET","POST"])
     def create_user():
+        if session.get("user_type") != "admin":
+            return redirect(url_for("login_page", expired=1))
         
         error=None
         success=None
@@ -36,15 +46,19 @@ def init_user_create_routes(app):
             fullname=request.form.get("fullname", "").strip()
             username=request.form.get("username", "").strip()
             password=request.form.get("password", "").strip()
-            email=request.form.get("email", "").strip()
+            email_input=request.form.get("email", "").strip().lower()
             phone=request.form.get("phone", "").strip()
             gender=request.form.get("gender", "")
             role=request.form.get("role", "")
 
-#----------- VALIDATION ---------------
-            #if (not fullname) or (not username) or (not password) or (not email) or (not phone) or 
-            # (not gender) or (not role):
-            
+            #AUTO ADD DOMAIN
+            DOMAIN="@abc.com"
+            if email_input and "@" not in email_input:
+                email=email_input+DOMAIN
+            else:
+                email=email_input
+
+#----------- VALIDATION ---------------          
             if not fullname or not username or not password or not email:
                 error="please fill all the fields."
             elif is_user_exist(username):
@@ -82,8 +96,9 @@ def init_user_update_routes(app):
 
     @app.route("/admin/update_user", methods=["GET", "POST"])
     def update_user():
-       
-
+        if session.get("user_type") != "admin":
+            return redirect(url_for("login_page", expired=1))
+        
         display_name=get_dispaly_name()
 
         error = None
@@ -144,8 +159,22 @@ def init_user_update_routes(app):
 
             final_password = password if password else old_password
 
-            if not fullname or not username or not email:
+            # No change check 
+            if (
+                fullname==old_fullname and username==old_username and 
+                final_password==old_password and email==old_email and
+                phone==old_phone and gender==old_gender and role==old_role
+            ):
+                error="No data was changed."
+                success=None
+
+            #others validation
+            elif not fullname or not username or not email:
                 error = "fullname, username, email cannot be empty."
+            elif is_user_exist(username, user_id):
+                error="Username already exist. please choose a different username."
+            elif is_email_exist(email, user_id):
+                error="Email already exist. please choose a different Email."
             elif phone and ((not phone.isdigit()) or (len(phone) != 11)):
                 error = "Invalid phone number. Must be 11 digit number."
             elif gender not in ["Male", "Female", "Others"]:
@@ -161,7 +190,9 @@ def init_user_update_routes(app):
                 """, (fullname, username, final_password, email, phone, gender, role, user_id))
                 conn.commit()
                 success=  "User Updated Successfully."
-                result_user=(user_id, "","","","","","","")
+                error=None   
+                result_user=(user_id, "","","","","","","") # clear boxes after success (your requirement)
+               
 
 
                 # reload updated user
@@ -174,7 +205,8 @@ def init_user_update_routes(app):
             curser.close()
             conn.close()
 
-        return render_template("update_user.html",display_name=get_dispaly_name(), user_id=user_id, result_user=result_user, error=error,success=success )
+        return render_template("update_user.html",display_name=get_dispaly_name(),
+        user_id=user_id, result_user=result_user, error=error,success=success )
 
 
 

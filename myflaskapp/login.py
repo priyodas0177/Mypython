@@ -107,8 +107,8 @@ def inject_permission():
 #------------- Search User -------------
 @app.route("/admin/search-user", methods=["GET", "POST"])
 def search_user():
-    # if session.get("user_type") != "admin":
-    #     return redirect(url_for("login_page", expired=1))
+    if session.get("user_type") != "admin":
+        return redirect(url_for("login_page", expired=1))
 
     user = None
     error = None
