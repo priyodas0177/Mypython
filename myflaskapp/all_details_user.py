@@ -189,9 +189,11 @@ def init_user_update_routes(app):
                     WHERE id=%s
                 """, (fullname, username, final_password, email, phone, gender, role, user_id))
                 conn.commit()
-                success=  "User Updated Successfully."
-                error=None   
-                result_user=(user_id, "","","","","","","") # clear boxes after success (your requirement)
+                #success=  "User Updated Successfully."
+                error=None
+                return redirect(url_for("update_user", success=  "User Updated Successfully.")) 
+                 
+                #result_user=(user_id, "","","","","","","") # clear boxes after success (your requirement)
                
 
 
