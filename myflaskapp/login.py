@@ -3,6 +3,7 @@ from datetime import timedelta
 from flask import Flask, render_template, request, redirect, url_for, session
 from permission import has_permission, role_requered
 from all_details_user import init_user_create_routes, init_user_update_routes
+from attendance import log_login,log_logout
 
 app = Flask(__name__)
 app.secret_key = "abcd"
@@ -16,6 +17,19 @@ init_user_update_routes(app)
 def home():
     return redirect(url_for("login_page"))
 
+@app.before_request
+def idle_timeout():
+    # exclude login/static files
+    if request.endpoint in ("login_page", "static"):
+        return
+
+    # if not logged in, nothing to do
+    if not session.get("user_type"):
+        return
+
+    # refresh session expiry on every request
+    session.permanent = True
+    session.modified = True
 
 # ------------------ Login ------------------
 @app.route("/login", methods=["GET", "POST"])
@@ -53,6 +67,7 @@ def login_page():
             session["user_type"] = "admin"
             session["admin_id"] = admin_id
             session["admin_name"] = admin_name
+            session.modified=True
 
             return redirect(url_for("dashboard"))
         
@@ -65,8 +80,7 @@ def login_page():
                email=%s) AND password=%s AND  is_active=1
         """, (username,username,password))
         result_user=cursor.fetchone()
-        cursor.close()
-        conn.close()
+        
 
         if result_user:
             user_id, user_name, role=result_user
@@ -77,6 +91,11 @@ def login_page():
             session["user_id"]=user_id
             session["user_name"]=user_name
             session["role"]=role
+            session.modified=True
+
+            log_login(conn,user_id)
+            cursor.close()
+            conn.close()
             return redirect(url_for("dashboard"))
 
         return render_template("login.html", message="Invalid username or password")
@@ -107,8 +126,15 @@ def inject_permission():
 #------------- Search User -------------
 @app.route("/admin/search-user", methods=["GET", "POST"])
 def search_user():
-    if session.get("user_type") != "admin":
+    if not session.get("user_type"):
         return redirect(url_for("login_page", expired=1))
+
+    if not (
+        session.get("user_type") == "admin"
+        or (has_permission("create_user") and has_permission("give_permission"))
+    ):
+        return redirect(url_for("dashboard"))
+
 
     user = None
     error = None
@@ -196,10 +222,52 @@ def save_permissions(user_id):
 
     return redirect(url_for("search_user"))
 
+#------------Attendance -------------
+@app.route("/attendance")
+def attendance():
+
+    # Must be logged in
+    if not session.get("user_type"):
+        return redirect(url_for("login_page", expired=1))
+
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    # � If admin → see all
+    if session.get("user_type") == "admin":
+        cursor.execute("""
+            SELECT user_id, att_date, in_time, out_time, stay_minutes, status, remarks
+            FROM attendance_daily
+            ORDER BY att_date DESC
+        """)
+
+    # � If normal user → see only his data
+    else:
+        user_id = session.get("user_id")
+
+        cursor.execute("""
+            SELECT user_id, att_date, in_time, out_time, stay_minutes, status, remarks
+            FROM attendance_daily
+            WHERE user_id=%s
+            ORDER BY att_date DESC
+        """, (user_id,))
+
+    rows = cursor.fetchall()
+    cursor.close()
+    conn.close()
+
+    return render_template("attendance.html", rows=rows, display_name=get_dispaly_name())
+
 
 # ------------------ Logout ------------------
 @app.route("/logout")
 def logout():
+    if session.get("user_type") == "user":
+        user_id = session.get("user_id")
+        conn = get_connection()
+        log_logout(conn, user_id)
+        conn.close()
+
     session.clear()
     return redirect(url_for("login_page"))
 

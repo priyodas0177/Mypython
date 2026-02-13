@@ -36,8 +36,17 @@ def get_dispaly_name():
 def init_user_create_routes(app):
     @app.route("/admin/create_user",methods=["GET","POST"])
     def create_user():
-        if session.get("user_type") != "admin":
+        if not session.get("user_type"):
             return redirect(url_for("login_page", expired=1))
+
+        if not (
+            session.get("user_type") == "admin"
+            or (has_permission("create_user") and has_permission("give_permission"))
+        ):
+            return redirect(url_for("dashboard"))
+
+
+#
         
         error=None
         success=None
@@ -96,8 +105,12 @@ def init_user_update_routes(app):
 
     @app.route("/admin/update_user", methods=["GET", "POST"])
     def update_user():
-        if session.get("user_type") != "admin":
+        if not session.get("user_type"):
             return redirect(url_for("login_page", expired=1))
+
+        # allow admin OR permitted user
+        if not (session.get("user_type") == "admin" or has_permission("create_user")):
+            return redirect(url_for("dashboard"))
         
         display_name=get_dispaly_name()
 

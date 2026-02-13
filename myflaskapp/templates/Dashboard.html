@@ -140,7 +140,7 @@
         <nav class="sub">
           <a class="sub-link" href="/dashboard">Dashboard</a>
           <a class="sub-link" href="#">Personal Information</a>
-          <a class="sub-link" href="#">Daily Attendance</a>
+          <a class="sub-link" href="{{url_for('attendance')}}">Daily Attendance</a>
           <a class="sub-link" href="#">Food</a>
           <a class="sub-link" href="#">Salary Statment</a>
           <a class="sub-link" href="#">Leave Application</a>
@@ -187,14 +187,15 @@
       </details>
       {% endif %}
 
-      {% if has_permission("USER_DETAILS") %}
+        
+      {% if has_permission("give_permission") %}
       <details class="group" open>
         <summary class="group-title">
           <span class="chev"></span>
           <span>Permission</span>
         </summary>
         <nav class="sub">
-          {% if has_permission("CREATE_USER") %}
+          {% if has_permission("give_permission") %}
             <a class="sub-link" href="{{ url_for('search_user') }}">Give Permission</a>
           {% endif %}
         </nav>
