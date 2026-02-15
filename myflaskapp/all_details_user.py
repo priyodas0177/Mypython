@@ -4,18 +4,19 @@ from permission import has_permission
 
 
 def is_user_exist(username, user_id=None):
-    conn=get_connection()
-    curser=conn.cursor()
+    conn = get_connection()
+    cursor = conn.cursor()
 
     if user_id:
-        curser.execute("SELECT id FROM users WHERE username=%s and id<>%s",
-                       (username,user_id))
+        cursor.execute("SELECT id FROM users WHERE username=%s AND id<>%s", (username, user_id))
     else:
-        curser.execute("SELECT id FROM users WHERE username=%s",(username,))
-    username_result=curser.fetchone()
-    curser.close()
+        cursor.execute("SELECT id FROM users WHERE username=%s", (username,))
+
+    row = cursor.fetchone()
+    cursor.close()
     conn.close()
-    return username_result is not None
+    return row is not None
+
 
 def is_email_exist(email,user_id=None):
     conn=get_connection()
@@ -34,71 +35,60 @@ def get_dispaly_name():
     return session.get("admin_name") or session.get("user_name") or "User"
 
 def init_user_create_routes(app):
-    @app.route("/admin/create_user",methods=["GET","POST"])
+    @app.route("/admin/create_user", methods=["GET", "POST"])
     def create_user():
         if not session.get("user_type"):
             return redirect(url_for("login_page", expired=1))
 
-        if not (
-            session.get("user_type") == "admin"
-            or (has_permission("create_user") and has_permission("give_permission"))
-        ):
+        # ✅ allow admin OR create_user permission
+        if not (session.get("user_type") == "admin" or has_permission("create_user")):
             return redirect(url_for("dashboard"))
 
+        error = None
+        success = None
 
-#
-        
-        error=None
-        success=None
+        if request.method == "POST":
+            fullname = request.form.get("fullname", "").strip()
+            username = request.form.get("username", "").strip()
+            password = request.form.get("password", "").strip()
+            email_input = request.form.get("email", "").strip().lower()
+            phone = request.form.get("phone", "").strip()
+            gender = request.form.get("gender", "")
+            role = request.form.get("role", "")
 
-        if request.method=="POST":
-            fullname=request.form.get("fullname", "").strip()
-            username=request.form.get("username", "").strip()
-            password=request.form.get("password", "").strip()
-            email_input=request.form.get("email", "").strip().lower()
-            phone=request.form.get("phone", "").strip()
-            gender=request.form.get("gender", "")
-            role=request.form.get("role", "")
-
-            #AUTO ADD DOMAIN
-            DOMAIN="@abc.com"
+            DOMAIN = "@abc.com"
             if email_input and "@" not in email_input:
-                email=email_input+DOMAIN
+                email = email_input + DOMAIN
             else:
-                email=email_input
+                email = email_input
 
-#----------- VALIDATION ---------------          
             if not fullname or not username or not password or not email:
-                error="please fill all the fields."
+                error = "please fill all the fields."
             elif is_user_exist(username):
-                error="Username already exist. please choose a different username."
+                error = "Username already exist. please choose a different username."
             elif is_email_exist(email):
-                error="Email already exist. please choose a different email."
-            elif (not phone.isdigit()) or (len(phone)!=11):
-                error="Invalid phone number. please enter a valid 11-digit phone number."
-            elif gender not in ["Male","Female","Others"]:
-                error="Invalid Gender."
-            elif role not in ["Admin","Employee","Manager","HR"]:
-                error="Invalid Role."
+                error = "Email already exist. please choose a different email."
+            elif (not phone.isdigit()) or (len(phone) != 11):
+                error = "Invalid phone number. please enter a valid 11-digit phone number."
+            elif gender not in ["Male", "Female", "Others"]:
+                error = "Invalid Gender."
+            elif role not in ["Admin", "Employee", "Manager", "HR"]:
+                error = "Invalid Role."
             else:
-                conn=get_connection()
-                curser=conn.cursor()
-
-                curser.execute("""INSERT INTO users (fullname, username, password, email,
-                            phone, gender, role, is_active) VALUES (%s,%s,%s,%s,%s,%s,%s,%s)""",
-                            (fullname, username, password, email, phone, gender, role, 1))
+                conn = get_connection()
+                cursor = conn.cursor()
+                cursor.execute("""
+                    INSERT INTO users (fullname, username, password, email, phone, gender, role, is_active)
+                    VALUES (%s,%s,%s,%s,%s,%s,%s,%s)
+                """, (fullname, username, password, email, phone, gender, role, 1))
                 conn.commit()
-                curser.close()
+                cursor.close()
                 conn.close()
-                success="User Created Successfully."
 
-                return render_template("create_user.html", error=error,
-                                    success=success)
-            
-        return render_template(
-        "create_user.html",
-        error=error,
-        success=success,display_name=get_dispaly_name())
+                success = "User Created Successfully."
+
+        return render_template("create_user.html", error=error, success=success, display_name=get_dispaly_name())
+
 
 
 def init_user_update_routes(app):
@@ -108,7 +98,7 @@ def init_user_update_routes(app):
         if not session.get("user_type"):
             return redirect(url_for("login_page", expired=1))
 
-        # allow admin OR permitted user
+        # ✅ allow admin OR permission
         if not (session.get("user_type") == "admin" or has_permission("create_user")):
             return redirect(url_for("dashboard"))
         

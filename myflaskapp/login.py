@@ -1,9 +1,10 @@
 from database import get_connection
-from datetime import timedelta
+from datetime import timedelta, date
 from flask import Flask, render_template, request, redirect, url_for, session
 from permission import has_permission, role_requered
 from all_details_user import init_user_create_routes, init_user_update_routes
 from attendance import log_login,log_logout
+from show_user import init_user_list_routes
 
 app = Flask(__name__)
 app.secret_key = "abcd"
@@ -11,15 +12,19 @@ app.permanent_session_lifetime = timedelta(minutes=15)
 
 init_user_create_routes(app)
 init_user_update_routes(app)
+init_user_list_routes(app)
+
 
 # ------------------ Home ------------------
 @app.route("/")
 def home():
     return redirect(url_for("login_page"))
 
+from datetime import datetime
+
 @app.before_request
 def idle_timeout():
-    # exclude login/static files
+    # allow login + static without checks
     if request.endpoint in ("login_page", "static"):
         return
 
@@ -27,9 +32,23 @@ def idle_timeout():
     if not session.get("user_type"):
         return
 
-    # refresh session expiry on every request
-    session.permanent = True
+    now = datetime.now().timestamp()
+    last_activity = session.get("last_activity")
+
+    # first request after login
+    if last_activity is None:
+        session["last_activity"] = now
+        return
+
+    # if inactive more than 5 minutes => logout
+    if now - last_activity > 5 * 60:
+        session.clear()
+        return redirect(url_for("login_page", expired=1))
+
+    # update activity time (refresh)
+    session["last_activity"] = now
     session.modified = True
+
 
 # ------------------ Login ------------------
 @app.route("/login", methods=["GET", "POST"])
@@ -83,20 +102,22 @@ def login_page():
         
 
         if result_user:
-            user_id, user_name, role=result_user
+            user_id, user_name, role = result_user
 
             session.clear()
-            session.permanent=True
-            session["user_type"]="user"
-            session["user_id"]=user_id
-            session["user_name"]=user_name
-            session["role"]=role
-            session.modified=True
+            session.permanent = True
+            session["user_type"] = "user"
+            session["user_id"] = user_id
+            session["user_name"] = user_name
+            session["role"] = role
+            session["last_activity"] = datetime.now().timestamp()  # ✅ add this
+            session.modified = True
 
-            log_login(conn,user_id)
+            log_login(conn, user_id)
             cursor.close()
             conn.close()
             return redirect(url_for("dashboard"))
+
 
         return render_template("login.html", message="Invalid username or password")
 
@@ -131,11 +152,9 @@ def search_user():
 
     if not (
         session.get("user_type") == "admin"
-        or (has_permission("create_user") and has_permission("give_permission"))
-    ):
+        or has_permission("give_permission")
+        ):
         return redirect(url_for("dashboard"))
-
-
     user = None
     error = None
     features = []
@@ -183,8 +202,13 @@ def search_user():
 #------------- Save Permissions -------------
 @app.route("/admin/save-permissions/<int:user_id>", methods=["POST"])
 def save_permissions(user_id):
-    if session.get("user_type") != "admin":
+
+    if not session.get("user_type"):
         return redirect(url_for("login_page", expired=1))
+
+    # allow admin OR permission
+    if not (session.get("user_type") == "admin" or has_permission("give_permission")):
+        return redirect(url_for("dashboard"))
 
     selected = request.form.getlist("feature_codes")
 
@@ -194,69 +218,91 @@ def save_permissions(user_id):
     try:
         # reset permissions
         cursor.execute(
-            "UPDATE user_permissions SET is_allowed=0 WHERE user_id=%s", #reset all permissions that is selected before (permisssion back )
+            "UPDATE user_permissions SET is_allowed=0 WHERE user_id=%s",
             (user_id,)
         )
 
-        for code in selected:   #update the selected permissions TO 1 (permission allow)
+        for code in selected:
             cursor.execute("""
                 UPDATE user_permissions
                 SET is_allowed=1
                 WHERE user_id=%s AND feature_code=%s
             """, (user_id, code))
 
-            if cursor.rowcount == 0: #it update the permission(insert data)
+            if cursor.rowcount == 0:
                 cursor.execute("""
-                    INSERT INTO user_permissions (user_id, feature_code, is_allowed) 
+                    INSERT INTO user_permissions (user_id, feature_code, is_allowed)
                     VALUES (%s, %s, 1)
                 """, (user_id, code))
 
         conn.commit()
 
-    except:
+    except Exception as e:
         conn.rollback()
-        raise
+        raise e
     finally:
         cursor.close()
         conn.close()
 
-    return redirect(url_for("search_user"))
+    # ✅ redirect back to same user page (important)
+    return redirect(url_for("search_user", user_id=user_id))
+
 
 #------------Attendance -------------
+# @app.route("/attendance")
+# def attendance():
+#     if not session.get("user_id"):
+#         return redirect(url_for("login_page", expired=1))
+
+#     user_id = session["user_id"]
+
+#     conn = get_connection()
+#     cursor = conn.cursor()
+
+#     cursor.execute("""
+#         SELECT user_id, att_date, in_time, out_time, stay_minutes, status, remarks
+#         FROM attendance_daily
+#         WHERE user_id=%s
+#         ORDER BY att_date DESC
+#     """, (user_id,))
+
+#     rows = cursor.fetchall()
+
+#     cursor.close()
+#     conn.close()
+
+#     return render_template("attendance.html", rows=rows)
+
+
+
 @app.route("/attendance")
 def attendance():
-
-    # Must be logged in
-    if not session.get("user_type"):
+    if not session.get("user_id"):
         return redirect(url_for("login_page", expired=1))
+
+    user_id = session["user_id"]
+
+    # ✅ last 30 days (1 month)
+    start_date = date.today() - timedelta(days=30)
 
     conn = get_connection()
     cursor = conn.cursor()
 
-    # � If admin → see all
-    if session.get("user_type") == "admin":
-        cursor.execute("""
-            SELECT user_id, att_date, in_time, out_time, stay_minutes, status, remarks
-            FROM attendance_daily
-            ORDER BY att_date DESC
-        """)
-
-    # � If normal user → see only his data
-    else:
-        user_id = session.get("user_id")
-
-        cursor.execute("""
-            SELECT user_id, att_date, in_time, out_time, stay_minutes, status, remarks
-            FROM attendance_daily
-            WHERE user_id=%s
-            ORDER BY att_date DESC
-        """, (user_id,))
+    cursor.execute("""
+        SELECT user_id, att_date, in_time, out_time, stay_minutes, status, remarks
+        FROM attendance_daily
+        WHERE user_id=%s AND att_date >= %s
+        ORDER BY att_date DESC
+    """, (user_id, start_date))
 
     rows = cursor.fetchall()
+
     cursor.close()
     conn.close()
 
-    return render_template("attendance.html", rows=rows, display_name=get_dispaly_name())
+    return render_template("attendance.html", rows=rows, start_date=start_date, display_name=get_dispaly_name())
+
+
 
 
 # ------------------ Logout ------------------

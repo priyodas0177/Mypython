@@ -47,9 +47,16 @@
                     </td>
 
                     <!-- stay_minutes -->
-                    <td style="padding:10px; border-bottom:1px solid #eee;">
-                        {{ row[4] if row[4] is not none else "-" }}
+                    <td>
+                        {% if row[4] %}
+                            {% set hours = row[4] // 60 %}
+                            {% set minutes = row[4] % 60 %}
+                            {{ hours }}h {{ minutes }}m
+                        {% else %}
+                            -
+                        {% endif %}
                     </td>
+
 
                     <!-- status -->
                     <td style="padding:10px; border-bottom:1px solid #eee;">
