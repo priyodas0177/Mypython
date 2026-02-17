@@ -2,6 +2,9 @@
 # This is admin login page, admin login his username and password.  
 ![image alt](https://github.com/priyodas0177/Mypython/blob/main/Screenshots/login.png?raw=true)
 
+# If username or password any one is incorrect then show the message.
+![image alt](https://github.com/priyodas0177/Mypython/blob/main/Screenshots/incurrect%20pass.png)
+
 # This is admin Dashboard.
 ![image alt](https://github.com/priyodas0177/Mypython/blob/main/Screenshots/dashboard.png)
 
@@ -17,29 +20,19 @@ this app works for company domain network.
 # This is crarte user page. here he can crate any user.
 ![image alt](https://github.com/priyodas0177/Mypython/blob/main/Screenshots/create_user.png)
 
-#
-![image alt](https://github.com/priyodas0177/Mypython/blob/main/Screenshots/incurrect%20pass.png)
-
-#
-![image alt](https://github.com/priyodas0177/Mypython/blob/main/Screenshots/now%20give%20permission.png)
-
-#
-![image alt](https://github.com/priyodas0177/Mypython/blob/main/Screenshots/permissoin%20success.png)
-
-
-
-#
-![image alt](https://github.com/priyodas0177/Mypython/blob/main/Screenshots/update%20after%20search.png)
-
-#
+# This is update user page. here he can update anything from user.
 ![image alt](https://github.com/priyodas0177/Mypython/blob/main/Screenshots/update%20by%20search.png)
 
-#
+# This is permission page here admin give permission for feature for any user. (
+Ex. here he search by user id and see the name (siam, email: siam@abc.com).
+)
+![image alt](https://github.com/priyodas0177/Mypython/blob/main/Screenshots/permissoin%20success.png)
+
+# This is user login page. here create user feature show because he has the access.
 ![image alt](https://github.com/priyodas0177/Mypython/blob/main/Screenshots/user_login.png)
 
 
-#
-![image alt](https://github.com/priyodas0177/Mypython/blob/main/Screenshots/usercreate_succ.png)
+
 
 
 
