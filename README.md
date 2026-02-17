@@ -21,7 +21,7 @@ this app works for company domain network.
 ![image alt](https://github.com/priyodas0177/Mypython/blob/main/Screenshots/create_user.png)
 
 # This is update user page. here he can update anything from user.
-![image alt](https://github.com/priyodas0177/Mypython/blob/main/Screenshots/update%20by%20search.png)
+![image alt](https://github.com/priyodas0177/Mypython/blob/main/Screenshots/update%20after%20search.png?raw=true)
 
 # This is permission page here admin give permission for feature for any user. (
 Ex. here he search by user id and see the name (siam, email: siam@abc.com).
